@@ -176,32 +176,47 @@ export default function App() {
     };
   }, []);
 
-  function searchServices(value = query) {
-    const cleaned = value.trim();
+  
+function searchServices(value = query) {
+  const cleaned = value.trim();
 
-    setTimeout(() => {
-      resultsRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    }, 100);
+  setTimeout(() => {
+    resultsRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 100);
 
-    if (!cleaned) {
-      setResults([]);
-      setMessage("Enter a service name or question to search.");
-      return;
-    }
-
-    const found = findServices(cleaned);
-    setResults(found);
-
-    if (found.length) {
-      const names = found.map(s => s.name).join(", ");
-      setMessage(`Found ${found.length} matching service${found.length > 1 ? "s" : ""}: ${names}.`);
-    } else {
-      setMessage("Sorry, I couldn't find a matching service. Try clinic, library, help desk, or accessible facilities.");
-    }
+  if (!cleaned) {
+    setResults([]);
+    setMessage(t.searchPrompt);
+    return;
   }
+
+  const found = findServices(cleaned);
+  setResults(found);
+
+  if (found.length) {
+    const names = found.map(s => s.name).join(", ");
+
+    const statusMessages = {
+      "en-IN": `Found ${found.length} matching service${found.length > 1 ? "s" : ""}: ${names}.`,
+      "hi-IN": `${found.length} संबंधित सेवाएँ मिलीं: ${names}।`,
+      "ta-IN": `${found.length} தொடர்புடைய சேவைகள் கிடைத்தன: ${names}.`
+    };
+
+    setMessage(statusMessages[language] || statusMessages["en-IN"]);
+  } else {
+    const noResultsMessages = {
+      "en-IN": "Sorry, I couldn't find a matching service. Try clinic, library, help desk, or accessible facilities.",
+      "hi-IN": "माफ़ कीजिए, कोई मिलती-जुलती सेवा नहीं मिली। क्लिनिक, पुस्तकालय, सहायता केंद्र या सुलभ सुविधाएँ खोजें।",
+      "ta-IN": "மன்னிக்கவும், பொருத்தமான சேவை கிடைக்கவில்லை. மருத்துவமனை, நூலகம், உதவி மையம் அல்லது அணுகல்தன்மை வசதிகளைத் தேடுங்கள்."
+    };
+
+    setMessage(noResultsMessages[language] || noResultsMessages["en-IN"]);
+  }
+}
+
 
 
   function openService(service) {
